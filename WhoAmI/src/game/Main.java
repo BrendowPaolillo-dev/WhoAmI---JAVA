@@ -1,4 +1,4 @@
-package university;
+package game;
 
 public class Main {
 

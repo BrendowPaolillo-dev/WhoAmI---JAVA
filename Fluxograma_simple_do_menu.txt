@@ -1,0 +1,42 @@
+--> Interface simples de inicialização do jogo.
+
+--------------------
+procedure MenuDisplay
+
+Quem eu sou?
+
+(C)ria sessão
+(E)ntrar em uma sessão
+(I)nstruções
+(S)air
+
+--------------------
+OBS: Antes de chamar esta procedimento, é necessário acionar o serviço
+de conexão para receber uma porta.
+
+procedure CreateSessionDisplay
+
+Você foi connectado na porta {port}.
+
+Quando todos os seus amigos se conectarem a esta porta
+digite "Let go" para que o jogo comece.
+
+> ...
+
+--------------------
+OBS: Durante a entrada do usuário, o serviço de conexão deve ser chamado
+para tentar se conectar com o servidor.
+
+procedure SignInSessonDisplay
+
+Para se conectar a uma sessão você deve fornecer a porta
+da sessão de seus amigos.
+
+> Porta: ...
+
+--------------------
+procedure InstructionDisplay
+
+... TODO: Não sei ainda muito bem como detalhar o jogo. hehe
+
+--------------------
