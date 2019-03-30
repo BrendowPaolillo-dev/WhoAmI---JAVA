@@ -10,6 +10,15 @@ Quem eu sou?
 (I)nstruções
 (S)air
 
+> input() // Precisa ser [C, E, I, S, c, e, i, s], caso contrário, faça o pedido de entrada novamente.
+
+--------------------
+procedure CreateUser
+
+Antes de proceguir, por qual nome você quer ser chamado?
+
+> input()
+
 --------------------
 OBS: Antes de chamar esta procedimento, é necessário acionar o serviço
 de conexão para receber uma porta.
@@ -21,7 +30,7 @@ Você foi connectado na porta {port}.
 Quando todos os seus amigos se conectarem a esta porta
 digite "Let go" para que o jogo comece.
 
-> ...
+> input()
 
 --------------------
 OBS: Durante a entrada do usuário, o serviço de conexão deve ser chamado
@@ -30,13 +39,29 @@ para tentar se conectar com o servidor.
 procedure SignInSessonDisplay
 
 Para se conectar a uma sessão você deve fornecer a porta
-da sessão de seus amigos.
+da sessão do seu amiguinho.
 
-> Porta: ...
+> Porta: input()
+
+// Precisa ser um número e esse número deve ser uma porta disponível, caso contrário, faça o pedido novamente.
+// É bom ter uma mensagem do erro ocorrido.
 
 --------------------
 procedure InstructionDisplay
 
 ... TODO: Não sei ainda muito bem como detalhar o jogo. hehe
+
+--------------------
+procedure SettingsDisplay
+
+Configurações
+
+OBS: Caso você não coloque nenhuma entrada, o valor padrão será atribuido.
+
+Hostname padrão: localhost
+Port padrão: 12112
+
+> Hostname: input()
+> Port: input()
 
 --------------------

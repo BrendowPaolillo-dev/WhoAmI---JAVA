@@ -1,0 +1,3 @@
+
+
+http://www.java2s.com/Tutorial/Java/0320__Network/CreateaServerSocket.htm
