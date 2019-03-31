@@ -1,33 +1,44 @@
 package game;
 
 import java.io.IOException;
-import java.net.Socket;
+import java.util.Scanner;
 
 public class Game {
-	protected Player player;
-	private String instruction;
+	// General use
+	private static Scanner reader = new Scanner(System.in);
 
-	public Game() {	}
-	
-	public Player addPlayer(String nickname, Socket socket) throws IOException {
-		Messager messager = new Messager(socket);
-		Player player = new Player(nickname, messager);
+	protected Player player;
+
+	public Game(Player player) {
 		this.player = player;
-		messager.sendMessage("login:" + nickname); // Request to enter the game
-		return player;
 	}
-	
-	private void waitInstructions() throws IOException {
-		System.out.println("Esperando por instruções");
-		instruction = player.getMessager().receiveMessage();
-	}
-	
-	// TODO: Do procedures to make the game work
+
 	public void run() throws IOException, InterruptedException {
-		while (true)
-		{
-			this.waitInstructions();
-			System.out.println(instruction != null ? instruction : "");
+		String instruction, response;
+		while (true) {
+			System.out.println("Esperando por instruções");
+			instruction = player.getMessager().receiveMessage();
+
+			if (instruction.contains(player.getNickname() + ".")) {
+				if (instruction.contains("question.")) {
+					// Pergunta para o personagem da rodada
+					System.out.println("Faça uma pergunta: ");
+					response = reader.next();
+					player.getMessager().sendMessage(response);
+				} else if (instruction.contains("answer.")) {
+					// Resposta a pergunta feita nesta rodada
+					System.out.println("Digite (S)im ou (N)ao: ");
+					response = reader.next();
+					player.getMessager().sendMessage(response);
+				} else if (instruction.contains("attempt.")) {
+					// Tentativa de acertar o nome
+					System.out.println("Quem você acha que esse personagem é: ");
+					response = reader.next();
+					player.getMessager().sendMessage(response);
+				}
+			} else if (instruction.contains("print.")) {
+				System.out.println(instruction);
+			}
 		}
 	}
 }
