@@ -23,8 +23,13 @@ public class GameManager implements Observer {
 		return this.getHost().addConnection();
 	}
 	
+	// TODO: Remove link with one player
 	public void broadcast(Messager messager, String message) {
-		this.getHost().broadcast(messager, message);
+		this.getHost().broadcast(message);
+	}
+	
+	public void broadcast(String message) {
+		this.getHost().broadcast(message);
 	}
 
 	@Override

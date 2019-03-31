@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class GameHost extends Game {
+public class GameHost {
 	private GameManager gameManager;
 
 	public GameHost(GameManager gameManager) {
@@ -13,7 +13,7 @@ public class GameHost extends Game {
 
 	public Player createPlayer(String nickname, Socket socket) throws UnknownHostException, IOException {
 		Messager messager = new Messager(socket);
-		super.player = new Player(nickname, messager);
+		Player player = new Player(nickname, messager);
 		this.gameManager.addPlayer(player);
 		this.gameManager.getHost().addConnection();
 		return player;
@@ -24,7 +24,7 @@ public class GameHost extends Game {
 	}
 
 	private void broadcast(String message) {
-		this.gameManager.broadcast(this.player.getMessager(), message);
+		this.gameManager.broadcast(message);
 	}
 
 	public void run() throws InterruptedException {

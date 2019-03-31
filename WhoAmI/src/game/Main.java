@@ -48,9 +48,6 @@ public class Main {
 		System.out.println("Esperando por outros jogadores");
 		gameHost.getGameManager().getHost().addConnection();
 		System.out.println("Um jogador foi conectado");
-		System.out.println("Esperando por outro jogador");
-		gameHost.getGameManager().getHost().addConnection();
-		System.out.println("Um jogador foi conectado");
 	}
 
 	public static void SignInSession() throws UnknownHostException, IOException {
