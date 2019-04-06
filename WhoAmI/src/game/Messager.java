@@ -33,7 +33,14 @@ public class Messager {
 	}
 	
 	public String receiveMessage() throws IOException {
-	    return this.socketReader.readLine();
+		String response = this.socketReader.readLine();
+		while (response == null)
+			response = this.socketReader.readLine();
+	    return response;
+	}
+	
+	public String toString() {
+		return socket.toString();
 	}
 	
 	public void disconnect() throws IOException {
