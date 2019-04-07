@@ -16,7 +16,7 @@ public class Game {
 	private boolean validAnswer(String response) {
 		if (response.isEmpty())
 			return false;
-		switch(response.charAt(0)) {
+		switch (response.charAt(0)) {
 		case 's':
 		case 'S':
 		case 'n':
@@ -29,53 +29,82 @@ public class Game {
 	public void run() throws IOException, InterruptedException {
 		String instruction, response;
 		while (true) {
-			System.out.println("Esperando por instruções");
+			System.out.println("");
 			instruction = player.getMessager().receiveMessage();
 
 			if (instruction.contains(player.getNickname() + ".")) {
-				if (instruction.contains("question.")) {
-					
-					// Pergunta para o personagem da rodada
-					System.out.print("Faça uma pergunta: ");
-					response = reader.nextLine();
-					player.getMessager().sendMessage(response);
-					
-				} else if (instruction.contains("answer.")) {
-					
+				if (instruction.contains("answer.")) {
+
 					// Resposta a pergunta feita nesta rodada
-					System.out.print("Digite (S)im ou (N)ao: ");
+					System.out.print("[Mestre] Digite (S)im ou (N)ao: ");
 					response = reader.next();
 					while (!this.validAnswer(response)) {
-						System.out.print("Por favor, digite (S)im ou (N)ao: ");
-						response = reader.next();						
+						System.out.print("[Mestre] Por favor, digite (S)im ou (N)ao: ");
+						response = reader.next();
 					}
 					player.getMessager().sendMessage(response);
-					
+
+				} else if (instruction.contains("question.")) {
+					// Pergunta para o personagem da rodada
+					System.out.print("[Jogador] Faça uma pergunta: ");
+					response = reader.nextLine();
+					player.getMessager().sendMessage(response);
+
 				} else if (instruction.contains("attempt.")) {
-					
+
 					// Tentativa de acertar o nome
-					System.out.print("Quem você acha que esse personagem é: ");
+					System.out.print("[Jogador] Quem você acha que esse personagem é: ");
 					response = reader.nextLine();
 					player.getMessager().sendMessage(response);
-					
+
 				} else if (instruction.contains("persona.")) {
-					
+
 					// Tentativa de acertar o nome
-					System.out.print("Qual personagem você quer ser: ");
+					System.out.print("[Mestre] Qual personagem você quer ser: ");
 					response = reader.nextLine();
 					player.getMessager().sendMessage(response);
-					
+
 				} else if (instruction.contains("tip.")) {
-					
+
 					// Tentativa de acertar o nome
-					System.out.print("Dica: ");
+					System.out.print("[Mestre] Dica: ");
 					response = reader.nextLine();
 					player.getMessager().sendMessage(response);
-					
+
 				}
 			} else if (instruction.contains("print.")) {
-				System.out.println(instruction);
+
+				instruction = instruction.replaceAll("print.", "");
+				if (instruction.contains("tip.")) {
+					System.out.println("A dica foi: " + instruction.replaceAll("tip.", ""));
+				} else if (instruction.contains("answer.")) {
+					if (instruction.contains("attempt.")) {
+						instruction = instruction.replaceAll("answer.attempt.", "");
+						if (instruction.toLowerCase().charAt(0) == 's') {
+							System.out.println("[ACERTO] Resposta " + instruction);
+						} else {
+							System.out.println("[ ERRO ] Resposta " + instruction);
+						}
+					} else if (instruction.contains("question.")) {
+						instruction = instruction.replaceAll("answer.question.", "");
+						if (instruction.toLowerCase().charAt(0) == 's') {
+							System.out.println("[Mestre] Resposta foi SIM");
+						} else {
+							System.out.println("[Mestre] Resposta foi NÃO");
+						}
+					}
+				} else if (instruction.contains("question.")) {
+					System.out.println("A pergunta foi: " + instruction.replaceAll("question.", ""));
+				} else if (instruction.contains("attempt.")) {
+					System.out.println("A tentativa foi: " + instruction.replaceAll("attempt.", ""));
+				} else {
+					System.out.println(instruction);
+				}
+
+			} else if (instruction.contains("bar.")) {
+				System.out.println("==========================================");
 			} else {
+				System.out.println("DEBUG: Instrução não especificada!");
 				System.out.println("DEBUG: " + instruction);
 			}
 		}

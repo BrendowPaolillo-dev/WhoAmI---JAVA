@@ -9,4 +9,11 @@ public class Utils {
 		Player player = new Player(nickname, m);
 		return player;
 	}
+	
+	public static String cls() {
+		StringBuilder sb = new StringBuilder();
+		for ( int i = 0; i < 20; i++ )
+			sb.append('\n');
+		return sb.toString();
+	}
 }

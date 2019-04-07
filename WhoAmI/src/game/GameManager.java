@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class GameManager implements Runnable {
@@ -14,12 +15,15 @@ public class GameManager implements Runnable {
 
 	private int turn = 0;
 	private int round = 0;
-	private int numberOfTurns = 10;
-	private int numberOfRounds = 10;
+	private int numberOfTurns = 2;
+	private int numberOfRounds = 2;
+	private int scoreTurn;
 	
 	// TODO: The server can do some restrictions about the content of user responses
 	private String responseRequest;
-	
+	//get the persona of the match for check
+	private String personaCheck;
+		
 	public GameManager(ServerSocket serverSocket) throws UnknownHostException, IOException {
 		this.serverSocket = serverSocket;
 	}
@@ -67,6 +71,7 @@ public class GameManager implements Runnable {
 				try {
 					p.getMessager().sendMessage("print." + message);
 				} catch (IOException e) {
+					// TODO: maybe he disconnect
 					e.printStackTrace();
 				}
 			}
@@ -79,6 +84,7 @@ public class GameManager implements Runnable {
 		Messager messager = new Messager(socket);
 
 		String nickname = messager.receiveMessage();
+		
 		Player player = this.getPlayer(nickname);
 		while (player != null) {
 			messager.sendMessage("not ok");
@@ -86,11 +92,11 @@ public class GameManager implements Runnable {
 			player = this.getPlayer(nickname);
 		}
 		messager.sendMessage("ok");
-
+		
 		Player newPlayer = new Player(nickname, messager);
 		players.add(newPlayer);
-
-		System.out.println("DEBUG: O jogador " + nickname + " foi conectado.");
+		
+		this.broadcast("print.O jogador (" + nickname + ") foi conectado.");
 	}
 
 	// Find a player by nickname
@@ -106,43 +112,57 @@ public class GameManager implements Runnable {
 	public void requestPlayerSilent(Player player, String request) {
 		String message = player.getNickname() + "." + request;
 		this.sendMessage(player, message);
-		this.responseRequest = this.receiveMessage(player);
+		this.responseRequest = request + this.receiveMessage(player);
 	}
 	// Making a request for a player and propagate the answer.
 	public void requestPlayer(Player player, String request) {
 		requestPlayerSilent(player, request);
 		this.broadcastPlayerMessage(player, this.responseRequest);
 	}
-
+ 
 	// Game logic
 	public void turnGame(Player master) {
 		this.turn = 0;
-		while (this.turn < this.numberOfTurns) {
+		while (this.turn < this.numberOfTurns || this.scoreTurn <= 0) {
 			for (Player player : players) {
-				if (master == player) // O jogador mestre dele ser diferente do jogador que vai perguntar
+				if (master == player) // O jogador mestre deve ser diferente do jogador que vai perguntar
 					continue;
-
-				this.broadcast("print.Turno " + String.valueOf(this.turn + 1) + " : Jogador " + player.getNickname());
+				this.broadcast("print.[Turno " + String.valueOf(this.turn + 1) + "] jogador: " + player.getNickname());
 				this.requestPlayer(player, "question.");
-				this.requestPlayer(master, "answer.");
+				this.requestPlayer(master, "answer.question.");
 				this.requestPlayer(player, "attempt.");
-				this.requestPlayer(master, "answer.");
-
-				this.turn++; // Cada tentativa conta como um turno
-				if (this.turn < this.numberOfTurns)
-					break;
+				
+				if (this.personaCheck.toLowerCase().equals(this.responseRequest.replaceFirst("attempt.", "").toLowerCase())) {
+					this.broadcast("print.O jogador " + player.getNickname() + " venceu a rodada");
+					this.turn = this.numberOfTurns + 1;
+					player.setScore(this.scoreTurn);
+					
+				} else {
+					this.requestPlayer(master, "answer.attempt.");
+					if (this.responseRequest.replaceFirst("answer.attempt.", "").toLowerCase().charAt(0) == 's') {
+						this.broadcast("print.O jogador " + player.getNickname() + " ganhou a rodada");
+						this.turn = this.numberOfTurns + 1;
+						player.setScore(this.scoreTurn);
+					}
+				}
 			}
+			this.turn++;// Cada tentativa de todos os jogadores conta como um turno
+			this.scoreTurn--;
 		}
 	}
 	public void roundGame() {
 		for (Player master : players) {
+			this.scoreTurn = 10;
 			this.broadcast("print.Turno " + String.valueOf(this.round + 1) + " : Mestre " + master.getNickname());
 			this.requestPlayerSilent(master, "persona.");
+			this.personaCheck = this.responseRequest.replaceFirst("persona.", "");
 			this.requestPlayer(master, "tip.");
+			
 			this.turnGame(master);
 
 			this.round++; // Cada personagem conta uma rodada
-			if (this.round < this.numberOfRounds)
+			
+			if (this.round > this.numberOfRounds)
 				break;
 
 		}
@@ -151,14 +171,12 @@ public class GameManager implements Runnable {
 		this.round = 0;
 		while (this.round < this.numberOfRounds) {
 			this.roundGame();
-//			broadcast("print.Ola");
-//			try {
-//				Thread.sleep(5000);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
 		}
+		Collections.sort(this.players, Collections.reverseOrder()); 
+		this.players.forEach(player -> {
+			this.broadcast("print." + player.getNickname() + ": " + String.valueOf(player.getScore()));
+		});
+		
 	}
 	
 	// Force method to not need call the waitForPlayers
