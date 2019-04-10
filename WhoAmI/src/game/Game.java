@@ -8,6 +8,8 @@ public class Game {
 	private static Scanner reader = new Scanner(System.in);
 
 	protected Player player;
+	
+	private String instruction, response;
 
 	public Game(Player player) {
 		this.player = player;
@@ -25,22 +27,22 @@ public class Game {
 		}
 		return false;
 	}
-
+	
 	public void run() throws IOException, InterruptedException {
-		String instruction, response;
 		while (true) {
 			System.out.println("");
 			instruction = player.getMessager().receiveMessage();
-
+			
+			
 			if (instruction.contains(player.getNickname() + ".")) {
 				if (instruction.contains("answer.")) {
 
 					// Resposta a pergunta feita nesta rodada
 					System.out.print("[Mestre] Digite (S)im ou (N)ao: ");
-					response = reader.next();
+					response = reader.nextLine();
 					while (!this.validAnswer(response)) {
 						System.out.print("[Mestre] Por favor, digite (S)im ou (N)ao: ");
-						response = reader.next();
+						response = reader.nextLine();
 					}
 					player.getMessager().sendMessage(response);
 

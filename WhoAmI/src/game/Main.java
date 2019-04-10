@@ -1,15 +1,14 @@
 package game;
 
-import java.util.concurrent.ThreadLocalRandom;
-
-import com.sun.org.apache.bcel.internal.generic.Instruction;
-
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
 	// General use
@@ -25,18 +24,23 @@ public class Main {
 	private static int maxPlayers = 0;
 	private static String inputForm = ">> ";
 
-	public static void Menu() throws UnknownHostException, IOException, InterruptedException {
-		System.out.println("==========================================");
-		System.out.println("               Quem eu sou?               ");
-		System.out.println("==========================================");
-		System.out.println("              (C)riar sessão");
-		System.out.println("          (E)ntrar em uma sessão");
-		System.out.println("               (I)nstruções");
-		System.out.println("                  (S)air");
-		System.out.println();
-		System.out.print(inputForm);
+	private static char option;
 
-		char option = reader.nextLine().charAt(0);
+	private static int lengthFormat = 40;
+
+	public static void Menu() throws UnknownHostException, IOException, InterruptedException {
+		System.out.println(Utils.repeat(lengthFormat, "="));
+		System.out.println(Utils.center("Quem eu sou?", lengthFormat));
+		System.out.println(Utils.repeat(lengthFormat, "="));
+		System.out.println(Utils.center("(C)riar sessão", lengthFormat));
+		System.out.println(Utils.center("(E)ntrar em uma sessão", lengthFormat));
+		System.out.println(Utils.center("(I)nstruções", lengthFormat));
+		System.out.println(Utils.center("(S)air", lengthFormat));
+		System.out.println(Utils.repeat(lengthFormat, "="));
+		System.out.print(inputForm);
+		
+		option = reader.nextLine().charAt(0);
+		System.out.println(Utils.repeat(lengthFormat, "="));
 		switch (option) {
 		case 'e':
 		case 'E':
@@ -54,7 +58,6 @@ public class Main {
 		case 'S':
 			break;
 		default:
-			Utils.cls();
 			System.out.println("Por favor, digite uma das opções acima!");
 			break;
 		}
@@ -85,8 +88,6 @@ public class Main {
 		gameManager.addPlayer(Utils.createPlayer(nickname, socket2));
 
 		getMaxPlayers(); // Put the number of players
-
-		waitPlayers(); // Request another players
 	}
 
 	public static ServerSocket tryConnection() throws InterruptedException {
@@ -105,19 +106,13 @@ public class Main {
 		System.out.println("Me diga a quantidade de player para esta sessão. Intervalo [2, 10].");
 		System.out.print(inputForm);
 		maxPlayers = reader.nextInt();
+		gameManager.setMaxPlayers(maxPlayers);
 
 		while (maxPlayers <= 1 || maxPlayers > 10) {
 			System.out.println("ERRO: Por favor, digite um valor entre 2 e 10.");
 			System.out.print(inputForm);
 			maxPlayers = reader.nextInt();
-		}
-	}
-
-	public static void waitPlayers() throws IOException {
-		for (int i = 1; i < maxPlayers; i++) {
-			System.out.println();
-			System.out.println("Esperando jogadores");
-			gameManager.waitForPlayer();
+			gameManager.setMaxPlayers(maxPlayers);
 		}
 	}
 
@@ -160,7 +155,10 @@ public class Main {
 	}
 
 	public static void main(String[] args) throws IOException, InterruptedException {
-		Menu();
+		String options = "ceisCEIS";
+		do {
+			Menu();
+		} while (!options.contains(String.valueOf(option)));
 		run();
 	}
 
