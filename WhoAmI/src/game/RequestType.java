@@ -2,14 +2,9 @@ package game;
 
 public enum RequestType {
 	PRINT("print."),
-	ATTEMPT("attempt."),
-	PERSONA("persona."),
-	QUESTION("question."),
-	ANSWER("answer."),
 	CONFIMED("ok."),
-	NOT_CONFIRMED("not_ok."),
-	TIP("tip.");
-	
+	NOT_CONFIRMED("not_ok.");
+
 	private final String request;
 	
 	RequestType(final String request) {

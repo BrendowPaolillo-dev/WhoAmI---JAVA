@@ -5,10 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
 
 public class Main {
 	// General use
@@ -22,25 +19,22 @@ public class Main {
 	private static String host = "localhost";
 	private static int port = 12112;
 	private static int maxPlayers = 0;
-	private static String inputForm = ">> ";
 
 	private static char option;
 
-	private static int lengthFormat = 40;
-
 	public static void Menu() throws UnknownHostException, IOException, InterruptedException {
-		System.out.println(Utils.repeat(lengthFormat, "="));
-		System.out.println(Utils.center("Quem eu sou?", lengthFormat));
-		System.out.println(Utils.repeat(lengthFormat, "="));
-		System.out.println(Utils.center("(C)riar sessão", lengthFormat));
-		System.out.println(Utils.center("(E)ntrar em uma sessão", lengthFormat));
-		System.out.println(Utils.center("(I)nstruções", lengthFormat));
-		System.out.println(Utils.center("(S)air", lengthFormat));
-		System.out.println(Utils.repeat(lengthFormat, "="));
-		System.out.print(inputForm);
-		
+		Utils.printr("=");
+		Utils.print("Quem eu sou?");
+		Utils.printr("=");
+		Utils.print("(C)riar sessão");
+		Utils.print("(E)ntrar em uma sessão");
+		Utils.print("(I)nstruções");
+		Utils.print("(S)air");
+		System.out.println();
+		Utils.printIn();
+
 		option = reader.nextLine().charAt(0);
-		System.out.println(Utils.repeat(lengthFormat, "="));
+		Utils.printr("=");
 		switch (option) {
 		case 'e':
 		case 'E':
@@ -58,17 +52,16 @@ public class Main {
 		case 'S':
 			break;
 		default:
-			System.out.println("Por favor, digite uma das opções acima!");
+			Utils.print("Por favor, digite uma das opções acima!");
 			break;
 		}
 	}
 
 	public static void CreateSession() throws IOException, InterruptedException {
-		/**
-		 * This function need to create a game host and add the creator as a player.
-		 */
-		System.out.println("Antes de prosseguir, por qual nome você quer ser chamado?");
-		System.out.print(inputForm);
+		Utils.print("Antes de prosseguir, por qual nome você quer ser chamado?");
+		System.out.println();
+		Utils.printIn();
+		
 		String nickname = reader.nextLine();
 		System.out.println();
 
@@ -81,7 +74,7 @@ public class Main {
 		Player player = Utils.createPlayer(nickname, socket);
 		game = new Game(player);
 
-		System.out.println("Você foi conectado na porta (" + String.valueOf(port) + ")\n");
+		Utils.print("Você foi conectado na porta (" + String.valueOf(port) + ")\n");
 
 		// Force the accept for my self socket connection
 		Socket socket2 = ss.accept(); // Accept the local player
@@ -97,43 +90,54 @@ public class Main {
 				return new ServerSocket(port);
 			} catch (IOException e) {
 				Thread.sleep(100);
-				System.out.println("Tentando conectar...");
+				Utils.print("Tentando conectar...");
 			}
 		}
 	}
 
 	public static void getMaxPlayers() {
-		System.out.println("Me diga a quantidade de player para esta sessão. Intervalo [2, 10].");
-		System.out.print(inputForm);
+		Utils.print("Me diga a quantidade de player para esta sessão.");
+		Utils.print("Intervalo [2, 10].");
+		System.out.println();
+		Utils.printIn();
+		
 		maxPlayers = reader.nextInt();
 		gameManager.setMaxPlayers(maxPlayers);
 
 		while (maxPlayers <= 1 || maxPlayers > 10) {
-			System.out.println("ERRO: Por favor, digite um valor entre 2 e 10.");
-			System.out.print(inputForm);
+			Utils.print("ERRO: Por favor, digite um valor entre 2 e 10.");
+			System.out.println();
+			Utils.printIn();
+			
 			maxPlayers = reader.nextInt();
 			gameManager.setMaxPlayers(maxPlayers);
 		}
+		
+		Utils.print("Esperando pelos jogadores...");
 	}
 
 	public static void SignInSession() throws UnknownHostException, IOException {
-		System.out.println("Para se conectar a uma sessão você deve fornecer a porta da sessão dos seus amigos.");
-		System.out.print("Porta: ");
+		Utils.print("Para se conectar a uma sessão você deve fornecer a");
+		Utils.print("(porta) da sessão dos seus amigos.");
+		System.out.println();
+		Utils.printIn();
+		
 		port = reader.nextInt();
-
-		System.out.println("Antes de prosseguir, por qual nome você quer ser chamado?");
-		System.out.print(inputForm);
+		
+		System.out.println();
+		Utils.print("Antes de prosseguir, por qual nome você quer ser chamado?");
+		Utils.printIn();
+		
 		String nickname = reader.next();
-
 		Socket socket = new Socket(host, port);
-
 		Player player = Utils.createPlayer(nickname, socket);
 		player.getMessager().sendMessage(nickname);
 		String response = player.getMessager().receiveMessage();
 
 		while (!response.equals("ok")) {
-			System.out.println("ERRO: Este nome já existe, me diga outro.");
-			System.out.print(inputForm);
+			Utils.print("ERRO: Este nome já existe, me diga outro.");
+			System.out.println();
+			Utils.printIn();
 			nickname = reader.next();
 			player.setNickname(nickname);
 			player.getMessager().sendMessage(nickname);
