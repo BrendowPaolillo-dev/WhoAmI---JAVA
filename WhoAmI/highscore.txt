@@ -1,0 +1,7 @@
+joserval	20
+b	10
+Marieta	10
+a	9
+a	9
+b	9
+Porta	0

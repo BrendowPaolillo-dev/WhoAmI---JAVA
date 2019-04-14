@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 public class GameManager implements Runnable {
 	private final int scoreTurnDefault = 10;
-	
+
 	private ServerSocket serverSocket;
 	private ArrayList<Player> players = new ArrayList<>();
 	private int maxPlayers = 10;
@@ -23,7 +23,7 @@ public class GameManager implements Runnable {
 	private int round = 0;
 	private int numberOfTurns = 2;
 	private int numberOfRounds = 2;
-	private int scoreTurn = scoreTurnDefault; 
+	private int scoreTurn = scoreTurnDefault;
 
 	// TODO: The server can do some restrictions about the content of user responses
 	private String responseRequest;
@@ -46,7 +46,7 @@ public class GameManager implements Runnable {
 		}
 		return false;
 	}
-	
+
 	// Receive from one player
 	private String receiveMessage(Player player) {
 		try {
@@ -116,18 +116,20 @@ public class GameManager implements Runnable {
 		Player newPlayer = new Player(nickname, messager);
 		players.add(newPlayer);
 		this.numberOfPlayers++;
-		String interval = String.valueOf(this.numberOfPlayers) + "/" + String.valueOf(this.maxPlayers);
-		this.broadcast("printc.[" + interval + "] O jogador (" + nickname + ") foi conectado.");
+		this.showLobby();
 	}
 
-	public void waitPlayers() throws IOException, InterruptedException {
-		ExecutorService es = Executors.newCachedThreadPool();
-		for (int i = 1; i < this.maxPlayers; i++) {
-			es.execute(new ServiceWaitPlayers(this));
+	public void waitPlayers() {
+		try {
+			ExecutorService es = Executors.newCachedThreadPool();
+			for (int i = 1; i < this.maxPlayers; i++) {
+				es.execute(new ServiceWaitPlayers(this));
+			}
+			es.shutdown();
+			es.awaitTermination(2, TimeUnit.MINUTES); // Max time of wait: 2 minutes
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		es.shutdown();
-		es.awaitTermination(2, TimeUnit.MINUTES); // Max time of wait: 2 minutes
-		// all tasks have finished or the time has been reached.
 	}
 
 	// Find a player by nickname
@@ -153,33 +155,52 @@ public class GameManager implements Runnable {
 		this.broadcastPlayerMessage(player, "println." + response + this.responseRequest);
 	}
 
+	private void showLobby() {
+		this.broadcast("printr.=");
+		this.broadcast("printc.Jogadores conectados: " + String.valueOf(this.numberOfPlayers) + "/"
+				+ String.valueOf(this.maxPlayers));
+		this.players.forEach(player -> {
+			this.broadcast("print.\t[" + player.getNickname() + "]");
+		});
+		this.broadcast("print.");
+	}
+
+	private void showInstructions() {
+		this.broadcast("printr.=");
+		this.broadcast("printc.Instruções básicas:");
+		this.broadcast("print.> Somente são permitidas perguntas com respostas do tipo SIM/NAO\n"
+				+ "print.> Perguntas inadequadas serão invalidadas pelo Mestre\n"
+				+ "print.> Jogador perde a vez se fizer pergunta inadequada");
+		this.broadcast("print.");
+	}
+
 	public void run() {
-		try {
-			this.waitPlayers();
-		} catch (IOException | InterruptedException e) {
-			// TODO: What do here
-			e.printStackTrace();
-		}
+		this.waitPlayers();
+		this.showInstructions();
 
 		this.round = 0;
 		while (this.round < this.numberOfRounds) {
 			this.roundGame();
 		}
+		
 		Collections.sort(this.players, Collections.reverseOrder());
+		this.broadcast("printr.=");
+		this.broadcast("printc.O jogador " + this.players.get(0).getNickname() + " ganhou!");
 		this.players.forEach(player -> {
 			this.broadcast("print." + player.getNickname() + ": " + String.valueOf(player.getScore()));
 		});
-
+		
+		HighScoreGlobal.create(this.players);
 	}
 
 	private void roundGame() {
 		for (Player master : players) {
 			this.scoreTurn = scoreTurnDefault;
-			
+
 			String round = String.valueOf(this.round + 1);
 			String maxRound = String.valueOf(this.numberOfRounds);
-			this.broadcast("printr." + "=");
-			this.broadcast("printc.[Round " + round + "/" + maxRound  + "] : Mestre (" + master.getNickname() + ")");
+			this.broadcast("printr.=");
+			this.broadcast("printc.[Round " + round + "/" + maxRound + "] : Mestre (" + master.getNickname() + ")");
 
 			this.sendMessage(master, "print.[Mestre] Qual personagem você quer ser: ");
 			this.requestPlayerSilent(master, "request.");
@@ -198,18 +219,22 @@ public class GameManager implements Runnable {
 
 		}
 	}
+	
+	private Boolean isEndedTurn() {
+		return this.turn < this.numberOfTurns;
+	}
 
 	// Game logic
 	private void turnGame(Player master) {
 		this.turn = 0;
 		String round = String.valueOf(this.round + 1);
-		while (this.turn < this.numberOfTurns || this.scoreTurn <= 0) {
+		while (this.isEndedTurn() || this.scoreTurn <= 0) {
 			for (Player player : players) {
 				if (master == player) // O jogador mestre deve ser diferente do jogador que vai perguntar
 					continue;
 
 				String turn = "[Turno " + round + "-" + String.valueOf(this.turn + 1) + "]";
-				this.broadcast("printr." + "=");
+				this.broadcast("printr.=");
 				this.broadcast("printc." + turn + " jogador (" + player.getNickname() + ")");
 
 				this.questionRequest(player);
@@ -244,7 +269,7 @@ public class GameManager implements Runnable {
 		this.sendMessage(master, "print.[Mestre] Digite (S)im ou (N)ao");
 		this.requestPlayer(master, "request.", "A resposta foi: ");
 
-		while(!this.validAnswer(this.responseRequest)) {
+		while (!this.validAnswer(this.responseRequest)) {
 			this.sendMessage(master, "print.Por favor, digite (S)im ou (N)ao");
 			this.requestPlayer(master, "request.", "A resposta foi: ");
 		}
@@ -258,7 +283,7 @@ public class GameManager implements Runnable {
 	public void endTurns() {
 		this.turn = this.numberOfTurns + 1;
 	}
-	
+
 	// Force method to not need call the waitForPlayers
 	public void addPlayer(Player player) {
 		players.add(player);
