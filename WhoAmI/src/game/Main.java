@@ -123,13 +123,14 @@ public class Main {
 
 	private static void settings() {
 		// TODO Auto-generated method stub
-		String options = "1234";
+		String options = "123";
 		do {
 			System.out.println();
 			Utils.print("Opções de configuração");
 			System.out.println();
 			Utils.print("(1) Alterar IP? (" + host + ")");
 			Utils.print("(2) Alterar título? [1,2,3] Tema " + String.valueOf(titleTheme));
+			Utils.print("(3) Concluir");
 			
 			System.out.println();
 			Utils.printIn();
@@ -149,7 +150,7 @@ public class Main {
 				Utils.print("Por favor, digite uma das opções acima!");
 				break;
 			}
-		} while (!options.contains(option));
+		} while (!(option.charAt(0) == '3'));
 	}
 
 	private static void showHighScore() {
