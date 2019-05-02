@@ -4,65 +4,165 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Main {
 	// General use
-	private static Scanner reader = new Scanner(System.in);
-
-	// References
 	private static GameManager gameManager;
 	private static Game game;
+	private static HighScore highScore = new HighScore();
 
 	// Variables to connection
 	private static String host = "localhost";
 	private static int port = 12112;
 	private static int maxPlayers = 0;
 
-	private static char option;
+	private static String option;
+	private static int titleTheme = 3;
 
-	public static void Menu() throws UnknownHostException, IOException, InterruptedException {
-		Utils.printr("=");
-		Utils.print("Quem eu sou?");
-		Utils.printr("=");
-		Utils.print("(C)riar sessão");
-		Utils.print("(E)ntrar em uma sessão");
-		Utils.print("(I)nstruções");
-		Utils.print("(S)air");
-		System.out.println();
-		Utils.printIn();
-
-		option = reader.nextLine().charAt(0);
-		Utils.printr("=");
-		switch (option) {
-		case 'e':
-		case 'E':
-			SignInSession();
-			break;
-		case 'c':
-		case 'C':
-			CreateSession();
-			break;
-		case 'i':
-		case 'I':
-			Instructions();
-			break;
-		case 's':
-		case 'S':
-			break;
-		default:
-			Utils.print("Por favor, digite uma das opções acima!");
-			break;
-		}
+	private static void title1() {
+		Utils.print("   ___                            ");
+		Utils.print("  / _ \\ _   _  ___ _ __ ___       ");
+		Utils.print(" | | | | | | |/ _ \\ '_ ` _ \\      ");
+		Utils.print(" | |_| | |_| |  __/ | | | | |     ");
+		Utils.print("  \\__\\_\\\\__,_|\\___|_| |_| |_| ___ ");
+		Utils.print("  ___  ___  _   _    ___ _   |__ \\");
+		Utils.print(" / __|/ _ \\| | | |  / _ \\ | | |/ /");
+		Utils.print(" \\__ \\ (_) | |_| | |  __/ |_| |_| ");
+		Utils.print(" |___/\\___/ \\__,_|  \\___|\\__,_(_) ");
 	}
 
-	public static void CreateSession() throws IOException, InterruptedException {
+	private static void title2() {
+		Utils.print("    ____                             ");
+		Utils.print("   / __ \\                            ");
+		Utils.print("  | |  | |_   _  ___ _ __ ___        ");
+		Utils.print("  | |  | | | | |/ _ \\ '_ ` _ \\  ___  ");
+		Utils.print("  | |__| | |_| |  __/ | | | | ||__ \\ ");
+		Utils.print(" __\\___\\_\\\\__,_|\\___|_| |_| |_|   ) |");
+		Utils.print("/ __|/ _ \\| | | |  / _ \\ | | |   / / ");
+		Utils.print("\\__ \\ (_) | |_| | |  __/ |_| |  |_|  ");
+		Utils.print("|___/\\___/ \\__,_|  \\___|\\__,_|  (_)  ");
+		System.out.println();
+	}
+
+	private static void title3() {
+		Utils.print("        ___   __ __  ____ ___  ___        ");
+		Utils.print("       // \\\\  || || ||    ||\\\\//||        ");
+		Utils.print("      ((   )) || || ||==  || \\/ ||        ");
+		Utils.print("       \\\\_/X| \\\\_// ||___ ||    ||        ");
+		Utils.print(" __    ___   __ __     ____ __ __    ____ ");
+		Utils.print("(( \\  // \\\\  || ||    ||    || ||    |  \\\\");
+		Utils.print(" \\\\  ((   )) || ||    ||==  || ||      _//");
+		Utils.print("\\_))  \\\\_//  \\\\_//    ||___ \\\\_//      || ");
+		Utils.print("                                          ");
+	}
+
+	private static void menu() throws UnknownHostException, IOException, InterruptedException {
+		String options = "ceispoCEISPO";
+		do {
+
+			Utils.printr("=");
+			switch (titleTheme) {
+			case 1:
+				title1();
+				break;
+			case 2:
+				title2();
+				break;
+			case 3:
+				title3();
+				break;
+			default:
+				System.out.println("[ERRO] Tem alguma coisa errada com a seleção de temas!!!");
+				break;
+			}
+			Utils.printr("=");
+			Utils.print("(C)riar sessão");
+			Utils.print("(E)ntrar em uma sessão");
+			Utils.print("(O)pções de jogo");
+			Utils.print("(I)nformações");
+			Utils.print("(P)ontuações");
+			Utils.print("(S)air");
+			System.out.println();
+			Utils.printIn();
+
+			option = Utils.getString();
+			option = String.valueOf(option.charAt(0));
+
+			Utils.printr("=");
+			switch (option.charAt(0)) {
+			case 'c':
+			case 'C':
+				createSession();
+				break;
+			case 'e':
+			case 'E':
+				signInSession();
+				break;
+			case 'p':
+			case 'P':
+				showHighScore();
+				break;
+			case 'o':
+			case 'O':
+				settings();
+				break;
+			case 'i':
+			case 'I':
+				informations();
+				break;
+			case 's':
+			case 'S':
+				break;
+			default:
+				Utils.print("Por favor, digite uma das opções acima!");
+				break;
+			}
+		} while (!options.contains(option));
+	}
+
+	private static void settings() {
+		// TODO Auto-generated method stub
+		String options = "1234";
+		do {
+			System.out.println();
+			Utils.print("Opções de configuração");
+			System.out.println();
+			Utils.print("(1) Alterar IP? (" + host + ")");
+			Utils.print("(2) Alterar título? [1,2,3] Tema " + String.valueOf(titleTheme));
+			
+			System.out.println();
+			Utils.printIn();
+
+			option = Utils.getString();
+			option = String.valueOf(option.charAt(0));
+
+			Utils.printr("=");
+			switch (option.charAt(0)) {
+			case '1':
+				// TODO: Get the IP and verify if he is valid - make a mask, regular expression
+				break;
+			case '2':
+				// TODO: Get the theme
+				break;
+			default:
+				Utils.print("Por favor, digite uma das opções acima!");
+				break;
+			}
+		} while (!options.contains(option));
+	}
+
+	private static void showHighScore() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private static void createSession() throws IOException, InterruptedException {
 		Utils.print("Antes de prosseguir, por qual nome você quer ser chamado?");
 		System.out.println();
 		Utils.printIn();
-		
-		String nickname = reader.nextLine();
+
+		String nickname = Utils.getString();
 		System.out.println();
 
 		// Creating the gameManager
@@ -83,7 +183,7 @@ public class Main {
 		getMaxPlayers(); // Put the number of players
 	}
 
-	public static ServerSocket tryConnection() throws InterruptedException {
+	private static ServerSocket tryConnection() throws InterruptedException {
 		while (true) {
 			try {
 				port = ThreadLocalRandom.current().nextInt(10000, 60000);
@@ -95,40 +195,41 @@ public class Main {
 		}
 	}
 
-	public static void getMaxPlayers() {
+	private static void getMaxPlayers() {
 		Utils.print("Me diga a quantidade de player para esta sessão.");
 		Utils.print("Intervalo [2, 10].");
 		System.out.println();
 		Utils.printIn();
-		
-		maxPlayers = reader.nextInt();
+
+		maxPlayers = Utils.getInt();
 		gameManager.setMaxPlayers(maxPlayers);
 
 		while (maxPlayers <= 1 || maxPlayers > 10) {
 			Utils.print("ERRO: Por favor, digite um valor entre 2 e 10.");
 			System.out.println();
 			Utils.printIn();
-			
-			maxPlayers = reader.nextInt();
+
+			maxPlayers = Utils.getInt();
 			gameManager.setMaxPlayers(maxPlayers);
 		}
-		
+
 		Utils.print("Esperando pelos jogadores...");
 	}
 
-	public static void SignInSession() throws UnknownHostException, IOException {
+	private static void signInSession() throws UnknownHostException, IOException {
 		Utils.print("Para se conectar a uma sessão você deve fornecer a");
 		Utils.print("(porta) da sessão dos seus amigos.");
 		System.out.println();
 		Utils.printIn();
-		
-		port = reader.nextInt();
-		
+
+		port = Utils.getInt();
+
 		System.out.println();
 		Utils.print("Antes de prosseguir, por qual nome você quer ser chamado?");
+		System.out.println();
 		Utils.printIn();
-		
-		String nickname = reader.next();
+
+		String nickname = Utils.getString();
 		Socket socket = new Socket(host, port);
 		Player player = Utils.createPlayer(nickname, socket);
 		player.getMessager().sendMessage(nickname);
@@ -138,7 +239,7 @@ public class Main {
 			Utils.print("ERRO: Este nome já existe, me diga outro.");
 			System.out.println();
 			Utils.printIn();
-			nickname = reader.next();
+			nickname = Utils.getString();
 			player.setNickname(nickname);
 			player.getMessager().sendMessage(nickname);
 			response = player.getMessager().receiveMessage();
@@ -146,24 +247,61 @@ public class Main {
 		game = new Game(player);
 	}
 
-	public static void Instructions() {
+	private static void informations() {
 		// TODO: Write instruction prints
+		Utils.printr("=");
+		System.out.println();
+		Utils.print("Este jogo foi baseado em um outro jogo de adivinhação,");
+		Utils.print("onde cada jogador tem uma carta com um nome ou uma figura");
+		Utils.print("de algum pessoa/personagem na cabeça e a partir de");
+		Utils.print("perguntas que só podem ter com resposta sim e não, tentar");
+		Utils.print("adivinhar quem é esse personagem.");
+		System.out.println();
+		Utils.print("Ele é um pouco diferente, uma vez");
+		Utils.print("que o jogador sabe quem é, e os outros");
+		Utils.print("devem tentar adinhar quem ele é a partir");
+		Utils.print("do mesmo tipo de pergunta.");
+		System.out.println();
+		Utils.print("Este jogo foi feito como um projeto para");
+		Utils.print("a matéria de Linguagens de Programação.");
+		System.out.println();
+		Utils.print("Desenvolvedores");
+		Utils.print("Daniel Augusto Rodrigues Farina");
+		Utils.print("Brendow Paolillo");
+		System.out.println();
+		Utils.printr("=");
+		Utils.print("Precione qualquer tecla para continuar...");
+		Utils.printr("=");
+		Utils.getAnyString();
 	}
 
-	public static void run() throws IOException, InterruptedException {
+	private static void run() throws IOException, InterruptedException {
+		String runnable = "ceCE";
+		if (!runnable.contains(option))
+			return;
+
 		if (gameManager != null) {
 			Thread thread = new Thread(gameManager);
 			thread.start();
 		}
 		game.run();
+		gameManager.getPlayers().forEach(player -> highScore.add(player));
+	}
+
+	private static void exitMessage() {
+		Utils.print("  *´¨)                          ");
+		Utils.print(" ¸.·´¸.·*´¨) ¸.·*¨)             ");
+		Utils.print("(¸.·´ (¸.·` ** Até a próxima! **");
+		Utils.printr("=");
 	}
 
 	public static void main(String[] args) throws IOException, InterruptedException {
-		String options = "ceisCEIS";
+		String exit = "sS";
 		do {
-			Menu();
-		} while (!options.contains(String.valueOf(option)));
-		run();
+			menu();
+			run();
+		} while (!exit.contains(option));
+		exitMessage();
 	}
 
 }

@@ -2,11 +2,13 @@ package game;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class Utils {
 
 	private static int lengthFormat = 70;
 	private static String inputForm = ">> ";
+	private static Scanner reader = new Scanner(System.in);
 	
 	public static Player createPlayer(String nickname, Socket socket) throws IOException {
 		Messager m = new Messager(socket);
@@ -36,5 +38,31 @@ public class Utils {
 	
 	public static void printIn() {
 		System.out.print(inputForm);
+	}
+
+	public static String getString() {
+		String value = new String();
+		while (value.isEmpty())
+			value = reader.nextLine();
+		return value;
+	}
+	
+	public static String getAnyString() {
+		return reader.nextLine();
+	}
+	
+	public static Boolean isNumeric(String str) {
+		return str.matches("-?\\d+(\\.\\d+)?");
+	}
+	
+	public static Boolean isInteger(String str) {
+		return str.matches("-?\\d+");
+	}
+	
+	public static int getInt() {
+		String value = new String();
+		while (!isInteger(value))
+			value = reader.nextLine();
+		return Integer.parseInt(value);
 	}
 }
