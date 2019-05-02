@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 public class GameManager implements Runnable {
 	private final int scoreTurnDefault = 10;
-	
+
 	private ServerSocket serverSocket;
 	private List<Player> players = new ArrayList<>();
 	private int maxPlayers = 10;
@@ -23,7 +23,7 @@ public class GameManager implements Runnable {
 	private int round = 0;
 	private int numberOfTurns = 2;
 	private int numberOfRounds = 2;
-	private int scoreTurn = scoreTurnDefault; 
+	private int scoreTurn = scoreTurnDefault;
 
 	// TODO: The server can do some restrictions about the content of user responses
 	private String responseRequest;
@@ -46,7 +46,7 @@ public class GameManager implements Runnable {
 		}
 		return false;
 	}
-	
+
 	// Receive from one player
 	private String receiveMessage(Player player) {
 		try {
@@ -116,8 +116,7 @@ public class GameManager implements Runnable {
 		Player newPlayer = new Player(nickname, messager);
 		players.add(newPlayer);
 		this.numberOfPlayers++;
-		String interval = String.valueOf(this.numberOfPlayers) + "/" + String.valueOf(this.maxPlayers);
-		this.broadcast("printc.[" + interval + "] O jogador (" + nickname + ") foi conectado.");
+		this.showLobby();
 	}
 
 	// Controlled listen player for all players
@@ -156,12 +155,8 @@ public class GameManager implements Runnable {
 
 	// Game logic
 	public void run() {
-		try {
-			this.waitPlayers();
-		} catch (IOException | InterruptedException e) {
-			// TODO: What do here
-			e.printStackTrace();
-		}
+		this.waitPlayers();
+		this.showInstructions();
 
 		this.round = 0;
 		while (this.round < this.numberOfRounds) {
@@ -172,6 +167,8 @@ public class GameManager implements Runnable {
 		
 		// Simple test
 		Collections.sort(this.players, Collections.reverseOrder());
+		this.broadcast("printr.=");
+		this.broadcast("printc.O jogador " + this.players.get(0).getNickname() + " ganhou!");
 		this.players.forEach(player -> {
 			this.broadcast("print." + player.getNickname() + ": " + String.valueOf(player.getScore()));
 		});
@@ -180,7 +177,7 @@ public class GameManager implements Runnable {
 	private void roundGame() {
 		for (Player master : players) {
 			this.scoreTurn = scoreTurnDefault;
-			
+
 			String round = String.valueOf(this.round + 1);
 			String maxRound = String.valueOf(this.numberOfRounds);
 			this.broadcast("printr." + "=");
@@ -202,6 +199,10 @@ public class GameManager implements Runnable {
 				break;
 
 		}
+	}
+	
+	private Boolean isEndedTurn() {
+		return this.turn < this.numberOfTurns;
 	}
 
 	private void turnGame(Player master) {
@@ -248,7 +249,7 @@ public class GameManager implements Runnable {
 		this.sendMessage(master, "print.[Mestre] Digite (S)im ou (N)ao");
 		this.requestPlayer(master, "request.", "A resposta foi: ");
 
-		while(!this.validAnswer(this.responseRequest)) {
+		while (!this.validAnswer(this.responseRequest)) {
 			this.sendMessage(master, "print.Por favor, digite (S)im ou (N)ao");
 			this.requestPlayer(master, "request.", "A resposta foi: ");
 		}
@@ -262,7 +263,7 @@ public class GameManager implements Runnable {
 	public void endTurns() {
 		this.turn = this.numberOfTurns + 1;
 	}
-	
+
 	// Force method to not need call the waitForPlayers
 	public void addPlayer(Player player) {
 		players.add(player);
