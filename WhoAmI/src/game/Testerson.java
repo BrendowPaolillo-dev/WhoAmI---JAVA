@@ -9,8 +9,8 @@ public class Testerson extends Scorable {
 		this.score = score;
 	}
 	
-	public static void main(String[] args) {
-		System.out.println("Begin");
+	public static void main(String[] args) throws IOException {
+		System.out.println("Begin save");
 		HighScore hs = new HighScore();
 		hs.add(new Testerson("a", 0));
 		hs.add(new Testerson("b", 1));
@@ -21,6 +21,12 @@ public class Testerson extends Scorable {
 			System.out.println("Um erro aconteceu ao tentar salvar no arquivo");
 			e.printStackTrace();
 		}
-		System.out.println("End");
+		System.out.println(hs);
+		System.out.println("End save");
+		System.out.println("Begin load");
+		hs.load();
+		System.out.println(hs);
+		System.out.println("End load");
+		
 	}
 }
