@@ -146,10 +146,11 @@ public class Main {
 				// TODO: Get the theme
 				break;
 			case '3':
-				Utils.print("Você realmente quer apagar o seu histórico?");
+				Utils.print("Você realmente quer apagar o seu histórico? [s/N]");
 				System.out.println();
 				Utils.printIn();
 				option = Utils.getString();
+				Utils.printr("=");
 				if (option.charAt(0) == 's' || option.charAt(0) == 'S') {
 					try {
 						highScore.clear();
@@ -183,9 +184,11 @@ public class Main {
 			Utils.print("Não há nenhuma pontuação feita ainda...");
 			Utils.print("Volte aqui depois de participar de uma partida!");
 		} else {
-			Utils.print("Jogador < - > Pontuação");
+			System.out.println();
+			Utils.print("(Posição) Jogador < - > Pontuação");
 			for (int i = 0; i < arrayHighScore.length; i++) {
-				Utils.print(arrayHighScore[i].replaceFirst(" ", " < - > "));
+				System.out.println();
+				Utils.print("(" + String.valueOf(i + 1) + ")  " + arrayHighScore[i].replaceFirst(" ", "   -   "));
 			}
 		}
 		pressAnyTile();
@@ -297,7 +300,7 @@ public class Main {
 		Utils.print("Os pontos são atrubuídos de maneira descrescente, ou seja");
 		Utils.print("A primeira rodada de tentativas vale 10 pontos,");
 		Utils.print("a segunda, 9 pontos, e assim em diante.");
-		Utils.print("Ganha quem fizer mais pontos ao final da partida.");	
+		Utils.print("Ganha quem fizer mais pontos ao final da partida.");
 		System.out.println();
 		Utils.print("Este jogo foi feito como um projeto para");
 		Utils.print("a matéria de Linguagens de Programação.");
@@ -331,7 +334,7 @@ public class Main {
 		Utils.printr("=");
 		Utils.getAnyString();
 	}
-	
+
 	private static void exitMessage() {
 		Utils.print("  *´¨)                          ");
 		Utils.print(" ¸.·´¸.·*´¨) ¸.·*¨)             ");

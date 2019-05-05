@@ -24,4 +24,8 @@ public abstract class Scorable implements Comparable<Scorable> {
 	public void setScore(int score) {
 		this.score = score;
 	}
+
+	public String toString() {
+		return String.join(" ", this.getNickname(), String.valueOf(this.getScore()));
+	}
 }

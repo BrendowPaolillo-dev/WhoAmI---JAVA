@@ -35,14 +35,8 @@ public class HighScore {
 		this.highScore.addAll(scorables);
 	}
 
-	private void sort() {
-		Collections.sort(this.highScore, Collections.reverseOrder());
-	}
-
 	public String toString() {
-		return this.highScore.stream().map(score -> {
-			return String.join(" ", score.getNickname(), String.valueOf(score.getScore()));
-		}).collect(Collectors.joining(","));
+		return this.highScore.stream().map(score -> score.toString()).collect(Collectors.joining(","));
 	}
 
 	public void clear() throws IOException {
@@ -54,7 +48,7 @@ public class HighScore {
 	
 	public void save() throws IOException {
 		// Overwrite the data of the file
-		this.sort();
+		Collections.sort(this.highScore, Collections.reverseOrder());
 		FileWriter fileWriter = new FileWriter(this.file.getPath());
 		BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 

@@ -189,30 +189,26 @@ public class GameManager implements Runnable {
 			this.roundGame();
 		}
 
-		// TODO: Broadcast the highscore and create a method to each player save them
 		HighScore highScore = new HighScore();
 		try {
 			highScore.load();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		this.players.forEach(player ->{
-			highScore.add(player);
-		});
-		try {
+			
+			this.players.forEach(player -> {
+				highScore.add(player);
+			});
+			
 			highScore.save();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Erro ao carregar o highScore.");
 			e.printStackTrace();
 		}
-		// Simple test
+		
 		Collections.sort(this.players, Collections.reverseOrder());
 		this.broadcast("printr.=");
 		this.broadcast("printc.O jogador '" + this.players.get(0).getNickname() + "' ganhou!");
-		this.players.forEach(player -> {
-			this.broadcast("printc." + player.getNickname() + " < - > " + String.valueOf(player.getScore()));
-		});
+		for (int i = 0; i < this.players.size(); i++) {
+			this.broadcast("printc.(" + String.valueOf(i + 1) + ")  " + players.get(i).toString().replaceFirst(" ", "   -   "));
+		}
 		this.broadcast("exit.");
 		this.close();
 	}
@@ -220,7 +216,7 @@ public class GameManager implements Runnable {
 	private Boolean hasRound() {
 		return this.round < this.numberOfRounds;
 	}
-	
+
 	private void roundGame() {
 		for (Player master : players) {
 			this.scoreTurn = scoreTurnDefault;
