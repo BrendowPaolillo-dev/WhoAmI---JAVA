@@ -128,10 +128,11 @@ public class Main {
 			System.out.println();
 			Utils.print("Opções de configuração");
 			System.out.println();
-			Utils.print("(1) Alterar IP? (" + host + ")");
-			Utils.print("(2) Alterar título? [1,2,3] Tema " + String.valueOf(titleTheme));
-			Utils.print("(3) Concluir");
-			
+			Utils.print("(1) Alterar IP - (" + host + ")");
+			Utils.print("(2) Alterar título - [1,2,3] Tema " + String.valueOf(titleTheme));
+			Utils.print("(3) Apagar histórico de pontuações.");
+			Utils.print("(4) Concluir");
+
 			System.out.println();
 			Utils.printIn();
 
@@ -146,16 +147,52 @@ public class Main {
 			case '2':
 				// TODO: Get the theme
 				break;
+			case '3':
+				Utils.print("Você realmente quer apagar o seu histórico?");
+				System.out.println();
+				Utils.printIn();
+				option = Utils.getString();
+				if (option.charAt(0) == 's' || option.charAt(0) == 'S') {
+					try {
+						highScore.clear();
+					} catch (IOException e) {
+						Utils.print("Erro ao tentar limpar o arquivo.");
+						e.printStackTrace();
+						return;
+					}
+				}
+				break;
 			default:
 				Utils.print("Por favor, digite uma das opções acima!");
 				break;
 			}
-		} while (!(option.charAt(0) == '3'));
+		} while (!(option.charAt(0) == '4'));
 	}
 
 	private static void showHighScore() {
-		// TODO Auto-generated method stub
+		try {
+			highScore.load();
+		} catch (IOException e) {
+			Utils.print("Erro ao ler o highscore");
+			e.printStackTrace();
+			return;
+		}
 
+		String[] arrayHighScore = highScore.toString().split(",");
+		if (arrayHighScore.length == 1 && arrayHighScore[0].isEmpty()) {
+			Utils.print("Não há nenhuma pontuação feita ainda...");
+			Utils.print("Volte aqui depois de participar de uma partida!");
+		} else {
+			Utils.print("Jogador < - > Pontuação");
+			for (int i = 0; i < arrayHighScore.length; i++) {
+				Utils.print(arrayHighScore[i].replaceFirst(" ", " < - > "));
+			}
+		}
+		System.out.println();
+		Utils.printr("=");
+		Utils.print("Precione qualquer tecla para continuar...");
+		Utils.printr("=");
+		Utils.getAnyString();
 	}
 
 	private static void createSession() throws IOException, InterruptedException {
