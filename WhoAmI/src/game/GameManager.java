@@ -111,9 +111,9 @@ public class GameManager implements Runnable {
 	private void showInstructions() {
 		this.broadcast("printr.=");
 		this.broadcast("printc.Instruções básicas:");
-		this.broadcast("print.> Somente são permitidas perguntas com respostas do tipo SIM/NAO\n"
-				+ "print.> Perguntas inadequadas serão invalidadas pelo Mestre\n"
-				+ "print.> Jogador perde a vez se fizer pergunta inadequada");
+		this.broadcast("printc.> Somente são permitidas perguntas com respostas do tipo SIM/NAO <\n"
+				+ "printc.> Perguntas inadequadas serão invalidadas pelo Mestre <\n"
+				+ "printc.> Jogador perde a vez se fizer pergunta inadequada <");
 		this.broadcast("print.");
 	}
 
@@ -183,6 +183,8 @@ public class GameManager implements Runnable {
 		this.showInstructions();
 
 		this.round = 0;
+		this.numberOfRounds = this.numberOfPlayers;
+		this.numberOfTurns = 10;
 		while (this.round < this.numberOfRounds) {
 			this.roundGame();
 		}
@@ -207,12 +209,12 @@ public class GameManager implements Runnable {
 			this.broadcast("printr.=");
 			this.broadcast("printc.[Round " + round + "-" + maxRound + "] : Mestre (" + master.getNickname() + ")");
 
-			this.sendMessage(master, "print.[Mestre] Qual personagem você quer ser: ");
+			this.sendMessage(master, "print.[Mestre] Qual personagem você quer ser");
 			this.requestPlayerSilent(master, "request.");
 
 			this.personaCheck = this.responseRequest.replaceFirst("request.", "");
 
-			this.sendMessage(master, "print.[Mestre] Dica: ");
+			this.sendMessage(master, "print.[Mestre] Dica");
 			this.requestPlayer(master, "request.", "Dica: ");
 
 			this.turnGame(master);
@@ -232,7 +234,7 @@ public class GameManager implements Runnable {
 	private void turnGame(Player master) {
 		this.turn = 0;
 		String turns = String.valueOf(this.numberOfTurns + 1);
-		while (this.endedTurn() || this.scoreTurn <= 0) {
+		while (this.endedTurn() && this.scoreTurn <= 0) {
 			for (Player player : players) {
 				if (master == player) // O jogador mestre deve ser diferente do jogador que vai perguntar
 					continue;
@@ -246,10 +248,9 @@ public class GameManager implements Runnable {
 				this.attemptRequest(player);
 
 				if (this.personaCheck.equalsIgnoreCase(this.responseRequest)) {
-					this.broadcast("printc.O jogador " + player.getNickname() + " venceu a rodada");
+					this.broadcast("printc.O jogador " + player.getNickname() + " ganhou a rodada");
 					player.setScore(this.scoreTurn);
 					this.endTurns();
-
 				} else {
 					this.answerRequest(master);
 					if (this.responseRequest.replaceFirst("request.", "").toLowerCase().charAt(0) == 's') {

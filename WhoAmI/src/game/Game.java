@@ -22,7 +22,7 @@ public class Game {
 
 			if (instruction.contains("request.")) {
 				Utils.printIn();
-				response = reader.nextLine();
+				response = Utils.getString();
 				player.getMessager().sendMessage(response);
 			} else if (instruction.contains("print.")) {
 				instruction = instruction.replaceFirst("print.", "");

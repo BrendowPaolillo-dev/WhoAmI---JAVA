@@ -122,8 +122,6 @@ public class Main {
 	}
 
 	private static void settings() {
-		// TODO Auto-generated method stub
-		String options = "123";
 		do {
 			System.out.println();
 			Utils.print("Opções de configuração");
@@ -161,6 +159,8 @@ public class Main {
 						return;
 					}
 				}
+				break;
+			case '4':
 				break;
 			default:
 				Utils.print("Por favor, digite uma das opções acima!");
