@@ -46,5 +46,6 @@ public class Messager {
 	public void disconnect() throws IOException {
 		this.socket.close();
 		this.socketPrinter.close();
+		this.socketReader.close();
 	}
 }

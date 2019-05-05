@@ -209,12 +209,18 @@ public class GameManager implements Runnable {
 		// Simple test
 		Collections.sort(this.players, Collections.reverseOrder());
 		this.broadcast("printr.=");
-		this.broadcast("printc.O jogador " + this.players.get(0).getNickname() + " ganhou!");
+		this.broadcast("printc.O jogador '" + this.players.get(0).getNickname() + "' ganhou!");
 		this.players.forEach(player -> {
-			this.broadcast("print." + player.getNickname() + ": " + String.valueOf(player.getScore()));
+			this.broadcast("printc." + player.getNickname() + " < - > " + String.valueOf(player.getScore()));
 		});
+		this.broadcast("exit.");
+		this.close();
 	}
 
+	private Boolean hasRound() {
+		return this.round < this.numberOfRounds;
+	}
+	
 	private void roundGame() {
 		for (Player master : players) {
 			this.scoreTurn = scoreTurnDefault;
@@ -236,9 +242,8 @@ public class GameManager implements Runnable {
 
 			this.round++; // Cada personagem conta uma rodada
 
-			if (this.round > this.numberOfRounds)
+			if (!this.hasRound())
 				break;
-
 		}
 	}
 
@@ -323,4 +328,12 @@ public class GameManager implements Runnable {
 		return players;
 	}
 
+	public void close() {
+		try {
+			this.serverSocket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }

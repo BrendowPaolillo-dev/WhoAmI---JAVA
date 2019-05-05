@@ -188,11 +188,7 @@ public class Main {
 				Utils.print(arrayHighScore[i].replaceFirst(" ", " < - > "));
 			}
 		}
-		System.out.println();
-		Utils.printr("=");
-		Utils.print("Pressione qualquer tecla para continuar...");
-		Utils.printr("=");
-		Utils.getAnyString();
+		pressAnyTile();
 	}
 
 	private static void createSession() throws IOException, InterruptedException {
@@ -311,11 +307,7 @@ public class Main {
 		Utils.print("Brendow Paolillo Castro Isidoro");
 		System.out.println();
 		Utils.print("Bom jogo!");
-		System.out.println();
-		Utils.printr("=");
-		Utils.print("Pressione qualquer tecla para continuar...");
-		Utils.printr("=");
-		Utils.getAnyString();
+		pressAnyTile();
 	}
 
 	private static void run() throws IOException, InterruptedException {
@@ -326,11 +318,20 @@ public class Main {
 		if (gameManager != null) {
 			Thread thread = new Thread(gameManager);
 			thread.start();
+			gameManager = null;
 		}
 		game.run();
-		gameManager.getPlayers().forEach(player -> highScore.add(player));
+		pressAnyTile();
 	}
 
+	private static void pressAnyTile() {
+		System.out.println();
+		Utils.printr("=");
+		Utils.print("Pressione qualquer tecla para continuar...");
+		Utils.printr("=");
+		Utils.getAnyString();
+	}
+	
 	private static void exitMessage() {
 		Utils.print("  *´¨)                          ");
 		Utils.print(" ¸.·´¸.·*´¨) ¸.·*¨)             ");

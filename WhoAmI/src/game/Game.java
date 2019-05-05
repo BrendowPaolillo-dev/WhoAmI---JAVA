@@ -1,12 +1,8 @@
 package game;
 
 import java.io.IOException;
-import java.util.Scanner;
 
 public class Game {
-	// General use
-	private static Scanner reader = new Scanner(System.in);
-
 	protected Player player;
 
 	private String instruction, response;
@@ -38,6 +34,9 @@ public class Game {
 			} else if (instruction.contains("println.")) {
 				instruction = instruction.replaceFirst("println.", "");
 				System.out.println(instruction);
+			} else if (instruction.contains("exit.")){
+				player.getMessager().disconnect();
+				break;
 			} else {
 				System.out.println("DEBUG: Instrução não especificada!");
 				System.out.println("DEBUG: " + instruction);
