@@ -184,13 +184,28 @@ public class GameManager implements Runnable {
 
 		this.round = 0;
 		this.numberOfRounds = this.numberOfPlayers;
-		this.numberOfTurns = 10;
+		this.numberOfTurns = 2;
 		while (this.round < this.numberOfRounds) {
 			this.roundGame();
 		}
 
 		// TODO: Broadcast the highscore and create a method to each player save them
-
+		HighScore highScore = new HighScore();
+		try {
+			highScore.load();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		this.players.forEach(player ->{
+			highScore.add(player);
+		});
+		try {
+			highScore.save();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		// Simple test
 		Collections.sort(this.players, Collections.reverseOrder());
 		this.broadcast("printr.=");
@@ -227,14 +242,14 @@ public class GameManager implements Runnable {
 		}
 	}
 
-	private Boolean endedTurn() {
+	private Boolean hasTurn() {
 		return this.turn < this.numberOfTurns;
 	}
 
 	private void turnGame(Player master) {
 		this.turn = 0;
-		String turns = String.valueOf(this.numberOfTurns + 1);
-		while (this.endedTurn() && this.scoreTurn <= 0) {
+		String turns = String.valueOf(this.numberOfTurns);
+		while (this.hasTurn() && this.scoreTurn > 0) {
 			for (Player player : players) {
 				if (master == player) // O jogador mestre deve ser diferente do jogador que vai perguntar
 					continue;
@@ -251,12 +266,14 @@ public class GameManager implements Runnable {
 					this.broadcast("printc.O jogador " + player.getNickname() + " ganhou a rodada");
 					player.setScore(this.scoreTurn);
 					this.endTurns();
+					break;
 				} else {
 					this.answerRequest(master);
 					if (this.responseRequest.replaceFirst("request.", "").toLowerCase().charAt(0) == 's') {
 						this.broadcast("printc.O jogador " + player.getNickname() + " ganhou a rodada");
 						player.setScore(this.scoreTurn);
 						this.endTurns();
+						break;
 					}
 				}
 			}

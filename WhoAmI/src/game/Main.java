@@ -190,7 +190,7 @@ public class Main {
 		}
 		System.out.println();
 		Utils.printr("=");
-		Utils.print("Precione qualquer tecla para continuar...");
+		Utils.print("Pressione qualquer tecla para continuar...");
 		Utils.printr("=");
 		Utils.getAnyString();
 	}
