@@ -20,6 +20,8 @@ public class Main {
 	private static String option;
 	private static int titleTheme = 3;
 
+	private static Boolean canRun = false;
+	
 	private static void title1() {
 		Utils.print("   ___                            ");
 		Utils.print("  / _ \\ _   _  ___ _ __ ___       ");
@@ -140,10 +142,38 @@ public class Main {
 			Utils.printr("=");
 			switch (option.charAt(0)) {
 			case '1':
-				// TODO: Get the IP and verify if he is valid - make a mask, regular expression
+				Utils.print("Digite o novo endereço de IP");
+
+				System.out.println();
+				Utils.printIn();
+
+				String IP = Utils.getString();
+				if (Utils.isValidIP(IP)) {
+					host = IP;
+				} else {
+					Utils.print("IP inválido!");
+					pressAnyTile();
+				}
 				break;
 			case '2':
-				// TODO: Get the theme
+				Utils.print("Digite o número do tema de título que você quer. [1,2,3]");
+
+				System.out.println();
+				Utils.printIn();
+
+				int number = Utils.getInt();
+				if (number > 0 && number < 4) {
+					titleTheme = number;
+					Utils.printr("=");
+					System.out.println();
+					Utils.print("Tema atualizado!");
+				} else {
+					Utils.printr("=");
+					System.out.println();
+					Utils.print("Esse tema ainda não existe.");
+					Utils.print("Talvez em uma nova atualização!");
+				}
+				pressAnyTile();
 				break;
 			case '3':
 				Utils.print("Você realmente quer apagar o seu histórico? [s/N]");
@@ -156,7 +186,6 @@ public class Main {
 						highScore.clear();
 					} catch (IOException e) {
 						Utils.print("Erro ao tentar limpar o arquivo.");
-						e.printStackTrace();
 						return;
 					}
 				}
@@ -175,7 +204,6 @@ public class Main {
 			highScore.load();
 		} catch (IOException e) {
 			Utils.print("Erro ao ler o highscore");
-			e.printStackTrace();
 			return;
 		}
 
@@ -186,7 +214,9 @@ public class Main {
 		} else {
 			System.out.println();
 			Utils.print("(Posição) Jogador < - > Pontuação");
-			for (int i = 0; i < arrayHighScore.length; i++) {
+			int n = arrayHighScore.length;
+			n = n > 10 ? 10 : n;
+			for (int i = 0; i < n; i++) {
 				System.out.println();
 				Utils.print("(" + String.valueOf(i + 1) + ")  " + arrayHighScore[i].replaceFirst(" ", "   -   "));
 			}
@@ -226,7 +256,7 @@ public class Main {
 				port = ThreadLocalRandom.current().nextInt(10000, 60000);
 				return new ServerSocket(port);
 			} catch (IOException e) {
-				Thread.sleep(100);
+				Thread.sleep(port % 101);
 				Utils.print("Tentando conectar...");
 			}
 		}
@@ -239,53 +269,92 @@ public class Main {
 		Utils.printIn();
 
 		maxPlayers = Utils.getInt();
-		gameManager.setMaxPlayers(maxPlayers);
 
 		while (maxPlayers <= 1 || maxPlayers > 10) {
-			Utils.print("ERRO: Por favor, digite um valor entre 2 e 10.");
+			Utils.print("Por favor, digite um valor entre 2 e 10.");
 			System.out.println();
 			Utils.printIn();
 
 			maxPlayers = Utils.getInt();
-			gameManager.setMaxPlayers(maxPlayers);
 		}
+		gameManager.setMaxPlayers(maxPlayers);
 
 		Utils.print("Esperando pelos jogadores...");
 	}
 
-	private static void signInSession() throws UnknownHostException, IOException {
+	private static void signInSession() {
 		Utils.print("Para se conectar a uma sessão você deve fornecer a");
-		Utils.print("(porta) da sessão dos seus amigos.");
+		Utils.print("(porta) da sessão dos seus amigos. [10000,65000]");
 		System.out.println();
-		Utils.printIn();
 
+		Utils.printIn();
 		port = Utils.getInt();
+
+		while (port < 10000 || port > 65000) {
+			System.out.println();
+			Utils.print("Por favor, digite uma porta valida!");
+			System.out.println();
+
+			Utils.printIn();
+			port = Utils.getInt();
+		}
+
+		System.out.println();
+		Utils.print("Você deseja informar o host da sessão? [s/N] (" + host + ")");
+		System.out.println();
+
+		Utils.printIn();
+		String ip = Utils.getAnyString();
+		if (Utils.isSimNao(ip) && ip.matches("[Ss](im)?")) {
+			System.out.println();
+			Utils.print("Digite o novo endereço");
+			System.out.println();
+			Utils.printIn();
+			ip = Utils.getString();
+			while (!Utils.isValidIP(ip)) {
+				System.out.println();
+				Utils.print("Por favor, digite um endereço de IP valido!");
+				System.out.println();
+				Utils.printIn();
+				ip = Utils.getString();
+			}
+			host = ip;
+		}
 
 		System.out.println();
 		Utils.print("Antes de prosseguir, por qual nome você quer ser chamado?");
 		System.out.println();
+
 		Utils.printIn();
-
 		String nickname = Utils.getString();
-		Socket socket = new Socket(host, port);
-		Player player = Utils.createPlayer(nickname, socket);
-		player.getMessager().sendMessage(nickname);
-		String response = player.getMessager().receiveMessage();
 
-		while (!response.equals("ok")) {
-			Utils.print("ERRO: Este nome já existe, me diga outro.");
-			System.out.println();
-			Utils.printIn();
-			nickname = Utils.getString();
-			player.setNickname(nickname);
+		try {
+			Socket socket = new Socket(host, port);
+			Player player = Utils.createPlayer(nickname, socket);
 			player.getMessager().sendMessage(nickname);
-			response = player.getMessager().receiveMessage();
+			String response = player.getMessager().receiveMessage();
+
+			while (!response.equals("ok")) {
+				Utils.print("Este nome já existe, me diga outro.");
+				System.out.println();
+				Utils.printIn();
+				nickname = Utils.getString();
+				player.setNickname(nickname);
+				player.getMessager().sendMessage(nickname);
+				response = player.getMessager().receiveMessage();
+			}
+			game = new Game(player);
+			canRun = true;
+		} catch (IOException e) {
+			System.out.println();
+			Utils.print("Erro ao tentar se conectar no servidor!");
+			System.out.println();
+			pressAnyTile();
 		}
-		game = new Game(player);
+
 	}
 
 	private static void informations() {
-		// TODO: Write instruction prints
 		Utils.printr("=");
 		System.out.println();
 		Utils.print("Este jogo é a reformulação do jogo \"Who am I\"");
@@ -314,8 +383,7 @@ public class Main {
 	}
 
 	private static void run() throws IOException, InterruptedException {
-		String runnable = "ceCE";
-		if (!runnable.contains(option))
+		if (!option.matches("[ceCE]") || !canRun)
 			return;
 
 		if (gameManager != null) {
