@@ -70,7 +70,7 @@ public class Utils {
 		}
 		return true;
 	}
-
+	
 	public static Boolean isNumeric(String str) {
 		return str.matches("-?\\d+(\\.\\d+)?");
 	}

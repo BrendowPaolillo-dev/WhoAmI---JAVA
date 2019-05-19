@@ -231,7 +231,7 @@ public class Main {
 
 		String nickname = Utils.getString();
 		System.out.println();
-
+		
 		// Creating the gameManager
 		ServerSocket ss = tryConnection();
 		gameManager = new GameManager(ss);
@@ -248,6 +248,7 @@ public class Main {
 		gameManager.addPlayer(Utils.createPlayer(nickname, socket2));
 
 		getMaxPlayers(); // Put the number of players
+		canRun = true;
 	}
 
 	private static ServerSocket tryConnection() throws InterruptedException {
