@@ -12,6 +12,7 @@ public class Game {
 	}
 
 	public void run() throws IOException, InterruptedException {
+		// Method to do a game flow, where the player wait for instructions of server
 		while (true) {
 			System.out.println("");
 			instruction = player.getMessager().receiveMessage();

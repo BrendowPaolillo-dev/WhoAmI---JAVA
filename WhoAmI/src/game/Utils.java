@@ -11,6 +11,7 @@ public class Utils {
 	private static Scanner reader = new Scanner(System.in);
 
 	public static Player createPlayer(String nickname, Socket socket) throws IOException {
+		// Auxiliar method to create a player
 		Messager m = new Messager(socket);
 		Player player = new Player(nickname, m);
 		return player;
@@ -41,6 +42,7 @@ public class Utils {
 	}
 
 	public static String getString() {
+		// Check if the input string is null and continue making a request of input if is true
 		String value = new String();
 		while (value.isEmpty())
 			value = reader.nextLine();

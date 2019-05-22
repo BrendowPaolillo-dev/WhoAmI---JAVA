@@ -60,9 +60,9 @@ public class Main {
 	}
 
 	private static void menu() throws UnknownHostException, IOException, InterruptedException {
+		// Main menu: method to display a menu of initial options to play and config the game.
 		String options = "ceispoCEISPO";
 		do {
-
 			Utils.printr("=");
 			switch (titleTheme) {
 			case 1:
@@ -124,6 +124,7 @@ public class Main {
 	}
 
 	private static void settings() {
+		// Settings menu
 		do {
 			System.out.println();
 			Utils.print("Opções de configuração");
@@ -200,6 +201,7 @@ public class Main {
 	}
 
 	private static void showHighScore() {
+		// Show the global highscore of all games
 		try {
 			highScore.load();
 		} catch (IOException e) {
@@ -225,6 +227,7 @@ public class Main {
 	}
 
 	private static void createSession() throws IOException, InterruptedException {
+		// Method to create a server and open the game
 		Utils.print("Antes de prosseguir, por qual nome você quer ser chamado?");
 		System.out.println();
 		Utils.printIn();
@@ -233,7 +236,7 @@ public class Main {
 		System.out.println();
 		
 		// Creating the gameManager
-		ServerSocket ss = tryConnection();
+		ServerSocket ss = getConnection();
 		gameManager = new GameManager(ss);
 
 		// Create the first player
@@ -247,11 +250,13 @@ public class Main {
 		Socket socket2 = ss.accept(); // Accept the local player
 		gameManager.addPlayer(Utils.createPlayer(nickname, socket2));
 
-		getMaxPlayers(); // Put the number of players
+		// Put the number of players
+		getMaxPlayers();
 		canRun = true;
 	}
 
-	private static ServerSocket tryConnection() throws InterruptedException {
+	private static ServerSocket getConnection() throws InterruptedException {
+		// Setting connection with random ports
 		while (true) {
 			try {
 				port = ThreadLocalRandom.current().nextInt(10000, 60000);
@@ -264,6 +269,7 @@ public class Main {
 	}
 
 	private static void getMaxPlayers() {
+		// Ask to players the number of player in session
 		Utils.print("Me diga a quantidade de player para esta sessão.");
 		Utils.print("Intervalo [2, 10].");
 		System.out.println();
@@ -284,6 +290,7 @@ public class Main {
 	}
 
 	private static void signInSession() {
+		// Join in game room
 		Utils.print("Para se conectar a uma sessão você deve fornecer a");
 		Utils.print("(porta) da sessão dos seus amigos. [10000,65000]");
 		System.out.println();
@@ -300,6 +307,7 @@ public class Main {
 			port = Utils.getInt();
 		}
 
+		// Set new game host
 		System.out.println();
 		Utils.print("Você deseja informar o host da sessão? [s/N] (" + host + ")");
 		System.out.println();
@@ -322,6 +330,7 @@ public class Main {
 			host = ip;
 		}
 
+		// Defining the nickname of player
 		System.out.println();
 		Utils.print("Antes de prosseguir, por qual nome você quer ser chamado?");
 		System.out.println();
@@ -386,7 +395,8 @@ public class Main {
 	private static void run() throws IOException, InterruptedException {
 		if (!option.matches("[ceCE]") || !canRun)
 			return;
-
+		
+		canRun = false;
 		if (gameManager != null) {
 			Thread thread = new Thread(gameManager);
 			thread.start();
